@@ -1,44 +1,40 @@
-# Local Password Manager
-
+Local Password Manager
 A secure, offline password manager built with Python and CustomTkinter, designed to store and manage passwords locally on your machine. It features a modern dark-themed UI inspired by PHP Switcher, strong encryption, and a configurable interface. The application auto-exits after a user-defined inactivity period to enhance security.
+Features
 
-## Features
+Password Generation: Create strong, customizable passwords with options for length, character types (lowercase, uppercase, digits, special), and exclusion of similar characters.
+Password Storage: Store passwords locally in an encrypted file (passwords.encrypted) with Fernet (AES-128) encryption.
+CSV Import/Export: Import passwords from CSV files (e.g., Chrome exports) and export your vault for backups or other managers.
+Search and Filter: Search passwords by website, username, or email, and filter by creation date (today, last week, last month).
+Modern UI: Dark theme with PHP Switcher-inspired colors (#383838, #303030, #0b4f16), customizable via config.json.
+Inactivity Timeout: Automatically exits after a configurable period (default: 5 minutes) of no mouse/keyboard activity.
+Secure Key Derivation: Uses PBKDF2HMAC (SHA256, 100,000 iterations) with a random salt stored in .env.
+Cross-Platform: Runs on Windows, Linux, and macOS with Python 3.12.
 
-- **Password Generation**: Create strong, customizable passwords with options for length, character types (lowercase, uppercase, digits, special), and exclusion of similar characters.
-- **Password Storage**: Store passwords locally in an encrypted file (`passwords.encrypted`) with Fernet (AES-128) encryption.
-- **CSV Import/Export**: Import passwords from CSV files (e.g., Chrome exports) and export your vault for backups or other managers.
-- **Search and Filter**: Search passwords by website, username, or email, and filter by creation date (today, last week, last month).
-- **Modern UI**: Dark theme with PHP Switcher-inspired colors (`#383838`, `#303030`, `#0b4f16`), customizable via `config.json`.
-- **Inactivity Timeout**: Automatically exits after a configurable period (default: 5 minutes) of no mouse/keyboard activity.
-- **Secure Key Derivation**: Uses PBKDF2HMAC (SHA256, 100,000 iterations) with a random salt stored in `.env`.
-- **Cross-Platform**: Runs on Windows (with Git Bash) and other platforms with Python 3.12.
+Prerequisites
 
-## Prerequisites
+Python 3.12: Required to run the application.
+Dependencies:
+customtkinter==5.2.2: Modern Tkinter widgets for the UI.
+pyperclip==1.9.0: Clipboard functionality.
+cryptography==43.0.1: Encryption and key derivation.
+python-dotenv==1.0.1: Environment variable management.
 
-- **Python 3.12**: Required for running the application.
-- **Dependencies**:
-  - `customtkinter`: Modern Tkinter widgets for the UI.
-  - `pyperclip`: Clipboard functionality.
-  - `cryptography`: Encryption and key derivation.
-  - `python-dotenv`: Environment variable management.
 
-## Installation
 
-1. **Clone the Repository**:
-   ```bash
-   git clone git@github.com:yourusername/password-manager.git
-   cd password-manager
+Installation
+
+Clone the Repository:
+git clone git@github.com:yourusername/password-manager.git
+cd password-manager
 
 
 Install Python 3.12:
 
 Download and install Python 3.12 from python.org.
-
-Verify:
-python3 --version
+Verify:python3 --version
 
 Should output Python 3.12.x.
-
 
 
 Install Dependencies:
@@ -46,31 +42,12 @@ pip install -r requirements.txt
 
 This installs customtkinter, pyperclip, cryptography, and python-dotenv.
 
-Optional: Create a Desktop Shortcut (Windows):
-
-Right-click on Desktop > New > Shortcut.
-
-Set location:
-"C:\Program Files\Git\bin\bash.exe" -c "/c/Users/Maged/Desktop/pass/run_pass.sh"
-
-
-Name it Password Manager.
-
-Adjust the path if your project is elsewhere.
-
-
-
 
 Usage
 
 Run the Application:
-python mpass.py
+python3 password_manager.py
 
-or 
-
-python3 mpass.py
-
-Or double-click the desktop shortcut (Windows).
 
 Set Up Master Password:
 
@@ -88,7 +65,7 @@ Inactivity Timeout: The app exits after the configured inactivity period (defaul
 
 Customize Configuration:
 
-Edit config.json to tweak UI colors, font size, and inactivity timeout (see Configuration).
+Edit config.json to tweak UI colors, font size, inactivity timeout, and password generation settings (see Configuration).
 
 
 
@@ -101,7 +78,16 @@ The application is customizable via config.json. If missing or invalid, defaults
   "colorEdit": "#0b4f16",
   "colorEditHover": "#07330e",
   "fontSize": 30,
-  "inactivityLimit": 60
+  "inactivityLimit": 60,
+  "passwordLength": 16,
+  "includeLowercase": true,
+  "includeUppercase": true,
+  "includeDigits": true,
+  "includeSpecial": true,
+  "excludeSimilar": false,
+  "filterOption": "All",
+  "searchField": "All Fields",
+  "showPasswords": false
 }
 
 Config Options
@@ -113,13 +99,74 @@ colorEdit: Button color (hex, e.g., #0b4f16).
 colorEditHover: Button hover color (hex, e.g., #07330e).
 fontSize: Font size for UI (integer ≥ 10, default: 30).
 inactivityLimit: Seconds of inactivity before auto-exit (integer ≥ 30, default: 300).
+passwordLength: Default password length (integer ≥ 8, default: 16).
+includeLowercase, includeUppercase, includeDigits, includeSpecial: Include character types in password generation (boolean, default: true).
+excludeSimilar: Exclude similar characters (e.g., l1IoO0) in password generation (boolean, default: false).
+filterOption: Default history filter ("All", "Today", "Last Week", "Last Month"; default: "All").
+searchField: Default search field ("All Fields", "Website/App", "Username", "Email"; default: "All Fields").
+showPasswords: Show passwords in history by default (boolean, default: false).
 
 Validation
 
 Colors must be valid hex (#RRGGBB) or "white" for white_fore.
 fontSize must be ≥ 10 for readability.
 inactivityLimit must be ≥ 30 seconds for usability.
+passwordLength must be ≥ 8 for security.
 Invalid or unknown keys trigger console warnings and fallback to defaults.
+
+To test customization:
+
+Edit config.json (e.g., change bg_fore to #4a4a4a, inactivityLimit to 120).
+Run python3 password_manager.py and verify changes.
+Delete config.json to test defaults.
+
+Security
+
+Encryption: Passwords are stored in passwords.encrypted using Fernet (AES-128).
+Key Derivation: Master password is processed with PBKDF2HMAC (SHA256, 100,000 iterations) and a random salt in .env.
+Inactivity Timeout: Auto-exits after configurable inactivity (default: 5 minutes) to prevent unauthorized access.
+Sensitive Files: .env, passwords.encrypted, config.json, and *.csv are excluded from Git via .gitignore.
+
+Note: Keep your master password secure and back up passwords.encrypted and .env. Losing them prevents vault access.
+Troubleshooting
+
+Application Fails to Run:
+
+Error: python3: command not found or wrong Python version.
+Fix:python3 --version
+
+Install Python 3.12 and ensure it’s in PATH.
+Error: Missing dependencies.
+Fix:pip install -r requirements.txt
+
+
+
+
+Config Issues:
+
+Error: UI doesn’t reflect config.json.
+Fix: Check console for warnings (e.g., Invalid hex color). Ensure valid JSON:python3 -m json.tool config.json
+
+
+Delete config.json to use defaults.
+
+
+Inactivity Timeout Incorrect:
+
+Fix: Verify inactivityLimit in config.json (≥ 30). Test by idling.
+
+
+Sensitive Files in Git:
+
+Fix: Verify .gitignore includes:.env
+passwords.encrypted
+config.json
+*.csv
+
+Remove:git rm --cached .env passwords.encrypted config.json
+
+
+
 
 
 Contributing
@@ -135,6 +182,4 @@ Please include tests and update documentation for new features.
 License
 This project is licensed under the MIT License. See LICENSE for details.
 
-Built with 💻 by MAGED. Star the repo if you find it useful! 🌟
-
-
+Built with 💻 by [Your Name]. Star the repo if you find it useful! 🌟
