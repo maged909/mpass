@@ -18,16 +18,32 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from dotenv import load_dotenv
 
+DEFAULT_CONFIG = {
+    "bg_fore": "#383838",
+    "bg_back": "#303030",
+    "white_fore": "white",
+    "colorEdit": "#0b4f16",
+    "colorEditHover": "#07330e",
+    "fontSize": 30,
+    "inactivityLimit": 60,  # seconds
+    "passwordLength": 16,
+    "includeLowercase": True,
+    "includeUppercase": True,
+    "includeDigits": True,
+    "includeSpecial": True,
+    "excludeSimilar": False,
+    "filterOption": "All",
+    "searchField": "All Fields",
+    "showPasswords": False
+}
+
+# if there's not config create one
+if not os.path.exists("config.json"):
+    with open("config.json", "w") as f:
+        json.dump(DEFAULT_CONFIG, f)
+
 class PasswordManager:
-    DEFAULT_CONFIG = {
-        "bg_fore": "#383838",
-        "bg_back": "#303030",
-        "white_fore": "white",
-        "colorEdit": "#0b4f16",
-        "colorEditHover": "#07330e",
-        "fontSize": 30,
-        "inactivityLimit": 300  # 5 minutes in seconds
-    }
+    DEFAULT_CONFIG = DEFAULT_CONFIG
 
     def __init__(self, root):
         self.root = root
@@ -40,20 +56,20 @@ class PasswordManager:
         ctk.set_widget_scaling(1.2)
 
         # Define variables
-        self.password_length = tk.IntVar(value=16)
-        self.include_lowercase = tk.BooleanVar(value=True)
-        self.include_uppercase = tk.BooleanVar(value=True)
-        self.include_digits = tk.BooleanVar(value=True)
-        self.include_special = tk.BooleanVar(value=True)
-        self.exclude_similar = tk.BooleanVar(value=True)
+        self.password_length = tk.IntVar(value=self.config["passwordLength"]) 
+        self.include_lowercase = tk.BooleanVar(value=self.config["includeLowercase"])
+        self.include_uppercase = tk.BooleanVar(value=self.config["includeUppercase"])
+        self.include_digits = tk.BooleanVar(value=self.config["includeDigits"])
+        self.include_special = tk.BooleanVar(value=self.config["includeSpecial"])
+        self.exclude_similar = tk.BooleanVar(value=self.config["excludeSimilar"])
         self.current_password = tk.StringVar()
         self.identifier = tk.StringVar()
         self.username = tk.StringVar()
         self.email = tk.StringVar()
         self.search_term = tk.StringVar()
-        self.filter_option = tk.StringVar(value="All")
-        self.search_field = tk.StringVar(value="All Fields")
-        self.show_passwords = tk.BooleanVar(value=False)  # Track password visibility
+        self.filter_option = tk.StringVar(value=self.config["filterOption"])
+        self.search_field = tk.StringVar(value=self.config["searchField"])
+        self.show_passwords = tk.BooleanVar(value=self.config["showPasswords"])
 
         # Inactivity timeout setup
         self.inactivity_limit = self.config["inactivityLimit"]
@@ -134,6 +150,35 @@ class PasswordManager:
                     self.config[key] = value
                 else:
                     print(f"Warning: Invalid inactivityLimit '{value}' in config.json (must be integer >= 30). Using default: {self.config[key]}")
+            elif key == "passwordLength":
+                if isinstance(value, int) and value >= 8:
+                    self.config[key] = value
+                else:
+                    print(f"Warning: Invalid passwordLength '{value}' in config.json (must be integer >= 8). Using default: {self.config[key]}")
+            elif key in ["includeLowercase", "includeUppercase", "includeDigits", "includeSpecial", "excludeSimilar", "showPasswords"]:
+                if isinstance(value, bool):
+                    self.config[key] = value
+                else:
+                    print(f"Warning: Invalid value for '{key}' in config.json (must be boolean). Using default: {self.config[key]}")
+            elif key == "filterOption":
+                if isinstance(value, str) and value in ["All","Last Used", "Created Date", "Username", "Email"]:
+                    self.config[key] = value
+                else:
+                    print(f"Warning: Invalid filterOption '{value}' in config.json. Using default: {self.config[key]}")
+            elif key == "searchField":
+                if isinstance(value, str) and value in ["All Fields", "Identifier", "Username", "Email"]:
+                    self.config[key] = value
+                else:
+                    print(f"Warning: Invalid searchField '{value}' in config.json. Using default: {self.config[key]}")
+            elif key == "showPasswords":
+                if isinstance(value, bool):
+                    self.config[key] = value
+                    self.show_passwords.set(value)
+                    # Update button text based on the value
+                    self.toggle_password_btn.configure(text="Hide" if self.show_passwords.get() else "Show")
+                    self.refresh_history_view()
+                else:
+                    print(f"Warning: Invalid value for 'showPasswords' in config.json (must be boolean). Using default: {self.config[key]}")
             else:
                 print(f"Warning: Unknown config key '{key}' in config.json. Ignored.")
 
@@ -437,7 +482,8 @@ class PasswordManager:
         delete_btn.pack(side='left', padx=5)
         edit_btn = ctk.CTkButton(btn_frame, text="Edit", command=self.edit_selected_entry, fg_color=self.config["colorEdit"], hover_color=self.config["colorEditHover"], font=("Helvetica", 11))
         edit_btn.pack(side='left', padx=5)
-        self.toggle_password_btn = ctk.CTkButton(btn_frame, text="Show", command=self.toggle_password_visibility, fg_color=self.config["bg_fore"], hover_color=self.config["bg_back"], font=("Helvetica", 11))
+        text_btn = "Hide" if self.show_passwords.get() else "Show"
+        self.toggle_password_btn = ctk.CTkButton(btn_frame, text=text_btn, command=self.toggle_password_visibility, fg_color=self.config["bg_fore"], hover_color=self.config["bg_back"], font=("Helvetica", 11))
         self.toggle_password_btn.pack(side='left', padx=5)
 
     def toggle_password_visibility(self):
