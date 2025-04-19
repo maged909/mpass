@@ -4,7 +4,6 @@ A secure, offline password manager built with Python and CustomTkinter, designed
 
 ![Password Generator Tab](screenshots/2.jpeg)
 ![Password History](screenshots/3.jpeg)
-
 ![Import Tab](screenshots/1.jpeg)
 
 ## Features
