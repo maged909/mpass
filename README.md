@@ -2,6 +2,8 @@
 
 A secure, offline password manager built with Python and CustomTkinter, designed to store and manage passwords locally on your machine. It features a modern dark-themed UI inspired by PHP Switcher, strong encryption, and a configurable interface. The application auto-exits after a user-defined inactivity period to enhance security.
 
+![Password Generator Tab](screenshots/1.jpeg)
+
 ## Features
 
 - **Password Generation**: Create strong, customizable passwords with options for length, character types (lowercase, uppercase, digits, special), and exclusion of similar characters.
