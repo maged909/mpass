@@ -201,3 +201,5 @@ Thumbs.db
 
 # Local scripts
 run_pass.sh
+
+config.json
