@@ -172,3 +172,32 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# Sensitive files
+passwords.encrypted
+*.csv
+.env
+config.json
+
+# Python cache and build files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Local scripts
+run_pass.sh
