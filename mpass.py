@@ -559,13 +559,30 @@ class PasswordManager:
                     imported_entries.append(entry)
 
             import_count = 0
+            updated_count = 0
             for entry in imported_entries:
-                if not any(p["identifier"] == entry["identifier"] and p["username"] == entry["username"] for p in self.passwords):
+                if any(p["identifier"] == entry["identifier"] and p["username"] == entry["username"] for p in self.passwords):
+                    # self.passwords.append(entry)\
+                    # overwrite existing entry
+                    for p in self.passwords:
+                        if p["identifier"] == entry["identifier"] and p["username"] == entry["username"]:
+                            p.update(entry)
+                            updated_count += 1
+                            break
+                elif any(p["identifier"] == entry["identifier"] and p["email"] == entry["email"] for p in self.passwords):
+                    # self.passwords.append(entry)
+                    # overwrite existing entry
+                    for p in self.passwords:
+                        if p["identifier"] == entry["identifier"] and p["email"] == entry["email"]:
+                            p.update(entry)
+                            updated_count += 1
+                            break
+                else:
                     self.passwords.append(entry)
                     import_count += 1
 
             self.save_data()
-            messagebox.showinfo("Success", f"Imported {import_count} passwords from CSV")
+            messagebox.showinfo("Success", f"Imported {import_count} passwords from CSV\nUpdated {updated_count} existing passwords")
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to import CSV: {str(e)}")
